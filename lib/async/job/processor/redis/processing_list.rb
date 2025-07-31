@@ -68,6 +68,8 @@ module Async
 					
 					attr :key
 					
+					attr :heartbeat_key
+
 					def fetch
 						@client.brpoplpush(@ready_list.key, @pending_key, 0)
 					end
@@ -80,20 +82,29 @@ module Async
 						Console.warn(self, "Retrying job: #{id}")
 						@client.evalsha(@retry, 2, @pending_key, @ready_list.key, id)
 					end
+
+					def requeue(start_time, delay, factor)
+						uptime = (Time.now.to_f - start_time).round(2)
+						expiry = (delay*factor).ceil
+						@client.set(@heartbeat_key, JSON.dump(uptime: uptime), seconds: expiry)
+						
+						# Requeue any jobs that have been abandoned:
+						count = @client.evalsha(@requeue, 2, @key, @ready_list.key)
+						
+						return count
+					end
 					
 					def start(delay: 5, factor: 2, parent: Async::Task.current)
-						heartbeat_key = "#{@key}:#{@id}"
 						start_time = Time.now.to_f
 						
-						parent.async do
+						parent.async do |task|
 							while true
-								uptime = (Time.now.to_f - start_time).round(2)
-								@client.set(heartbeat_key, JSON.dump(uptime: uptime), seconds: delay*factor)
-								
-								# Requeue any jobs that have been abandoned:
-								count = @client.evalsha(@requeue, 2, @key, @ready_list.key)
-								if count > 0
-									Console.warn(self, "Requeued #{count} abandoned jobs.")
+								task.defer_stop do
+									count = self.requeue(start_time, delay, factor)
+									
+									if count > 0
+										Console.warn(self, "Requeued #{count} abandoned jobs.")
+									end
 								end
 								
 								sleep(delay)

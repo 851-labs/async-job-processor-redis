@@ -7,7 +7,9 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "activejob", ">= 7.1"
+gem "agent-context"
+
+gem "activejob", ">= 8.0"
 
 group :maintenance, optional: true do
 	gem "bake-gem"
@@ -23,6 +25,7 @@ group :test do
 	gem "rubocop"
 	
 	gem 'sus-fixtures-async'
+	gem "sus-fixtures-console"
 	
 	gem "bake-test"
 	gem "bake-test-external"

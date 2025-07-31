@@ -97,7 +97,7 @@ module Async
 							@delegate.call(job)
 							@processing_list.complete(id)
 						rescue => error
-							Console::Event::Failure.for(error).emit(self, "Job failed with error!", id: id)
+							Console.error(self, "Job failed with error!", id: id, exception: error)
 							@processing_list.retry(id)
 						end
 					ensure
