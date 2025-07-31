@@ -12,6 +12,10 @@ Please see the [project documentation](https://socketry.github.io/async-job-proc
 
   - [Redis Queue](https://socketry.github.io/async-job-processor-redis/guides/redis-queue/index) - This guide gives a brief overview of the implementation of the Redis queue.
 
+## Releases
+
+There are no documented releases.
+
 ## See Also
 
   - [async-job](https://github.com/socketry/async-job) - Asynchronous job processing framework.

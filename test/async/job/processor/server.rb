@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2024, by Samuel Williams.
+# Copyright, 2024-2025, by Samuel Williams.
 
-require 'async'
-require 'async/redis'
+require "async"
+require "async/redis"
 
-require 'sus/fixtures/async/reactor_context'
-require 'sus/fixtures/console'
+require "sus/fixtures/async/reactor_context"
+require "sus/fixtures/console"
 
-require 'async/job/buffer'
-require 'async/job/processor/redis'
+require "async/job/buffer"
+require "async/job/processor/redis"
 
 describe Async::Job::Processor::Redis do
 	include Sus::Fixtures::Async::ReactorContext
@@ -24,7 +24,7 @@ describe Async::Job::Processor::Redis do
 	before do
 		server.start
 	end
-
+	
 	after do
 		server.stop
 	end
@@ -49,7 +49,7 @@ describe Async::Job::Processor::Redis do
 			)
 		end
 	end
-
+	
 	with "a failed job" do
 		it "can retry a job" do
 			server.call(job)
@@ -64,13 +64,13 @@ describe Async::Job::Processor::Redis do
 					end
 				end
 			end
-
+			
 			# The job was retried:
 			processed_job = buffer.pop
 			expect(processed_job).to have_keys(
 				"data" => be == job["data"],
 			)
-
+			
 			expect(failed).to be == true
 		end
 	end

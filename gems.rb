@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2024, by Samuel Williams.
+# Copyright, 2024-2025, by Samuel Williams.
 
 source "https://rubygems.org"
 
@@ -24,9 +24,13 @@ group :test do
 	gem "decode"
 	gem "rubocop"
 	
-	gem 'sus-fixtures-async'
+	gem "sus-fixtures-async"
 	gem "sus-fixtures-console"
 	
 	gem "bake-test"
 	gem "bake-test-external"
 end
+
+gem "rubocop-socketry", "~> 0.2.0", group: :test
+
+gem "bake-releases", "~> 0.3.0", group: :maintenance

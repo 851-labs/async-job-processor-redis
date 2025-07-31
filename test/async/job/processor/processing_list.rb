@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2024, by Samuel Williams.
+# Copyright, 2025, by Samuel Williams.
 
-require 'async'
-require 'async/redis'
+require "async"
+require "async/redis"
 
-require 'sus/fixtures/async/reactor_context'
-require 'sus/fixtures/console'
+require "sus/fixtures/async/reactor_context"
+require "sus/fixtures/console"
 
-require 'async/job/processor/redis/processing_list'
-require 'async/job/processor/redis/ready_list'
-require 'async/job/processor/redis/job_store'
+require "async/job/processor/redis/processing_list"
+require "async/job/processor/redis/ready_list"
+require "async/job/processor/redis/job_store"
 
 describe Async::Job::Processor::Redis::ProcessingList do
 	include Sus::Fixtures::Async::ReactorContext
@@ -34,7 +34,7 @@ describe Async::Job::Processor::Redis::ProcessingList do
 			# Add the job to the ready list
 			client.lpush(ready_list.key, job_id)
 		end
-
+		
 		with "#fetch" do
 			it "can fetch a job from ready list to pending list" do
 				# Fetch should move job from ready list to pending list
@@ -137,7 +137,7 @@ describe Async::Job::Processor::Redis::ProcessingList do
 			expect(count).to be == 0
 		end
 	end
-
+	
 	with "#start" do
 		it "can requeue an abandoned job" do
 			# Set up abandoned jobs to test requeue functionality
@@ -150,7 +150,7 @@ describe Async::Job::Processor::Redis::ProcessingList do
 			client.del("#{prefix}:processing:#{dead_server_id}")
 			
 			task = processing_list.start(delay: 0.1, factor: 2)
-
+			
 			fetched_job = processing_list.fetch
 			expect(fetched_job).to be == abandoned_job_id
 		ensure

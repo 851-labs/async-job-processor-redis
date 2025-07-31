@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2024, by Samuel Williams.
+# Copyright, 2024-2025, by Samuel Williams.
 
 module Async
 	module Job
@@ -69,7 +69,7 @@ module Async
 					attr :key
 					
 					attr :heartbeat_key
-
+					
 					def fetch
 						@client.brpoplpush(@ready_list.key, @pending_key, 0)
 					end
@@ -82,7 +82,7 @@ module Async
 						Console.warn(self, "Retrying job: #{id}")
 						@client.evalsha(@retry, 2, @pending_key, @ready_list.key, id)
 					end
-
+					
 					def requeue(start_time, delay, factor)
 						uptime = (Time.now.to_f - start_time).round(2)
 						expiry = (delay*factor).ceil

@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2024, by Samuel Williams.
+# Copyright, 2025, by Samuel Williams.
 
-require 'async'
-require 'async/redis'
+require "async"
+require "async/redis"
 
-require 'sus/fixtures/async/reactor_context'
-require 'sus/fixtures/console'
+require "sus/fixtures/async/reactor_context"
+require "sus/fixtures/console"
 
-require 'async/job/processor/redis/delayed_jobs'
-require 'async/job/processor/redis/ready_list'
-require 'async/job/processor/redis/job_store'
+require "async/job/processor/redis/delayed_jobs"
+require "async/job/processor/redis/ready_list"
+require "async/job/processor/redis/job_store"
 
 describe Async::Job::Processor::Redis::DelayedJobs do
 	include Sus::Fixtures::Async::ReactorContext

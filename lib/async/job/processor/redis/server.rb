@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2024, by Samuel Williams.
+# Copyright, 2024-2025, by Samuel Williams.
 
-require 'async/idler'
-require 'async/job/coder'
-require 'async/job/processor/generic'
+require "async/idler"
+require "async/job/coder"
+require "async/job/processor/generic"
 
-require 'securerandom'
+require "securerandom"
 
-require_relative 'delayed_jobs'
-require_relative 'job_store'
-require_relative 'processing_list'
-require_relative 'ready_list'
+require_relative "delayed_jobs"
+require_relative "job_store"
+require_relative "processing_list"
+require_relative "ready_list"
 
 module Async
 	module Job
 		module Processor
 			module Redis
 				class Server < Generic
-					def initialize(delegate, client, prefix: 'async-job', coder: Coder::DEFAULT, resolution: 10, parent: nil)
+					def initialize(delegate, client, prefix: "async-job", coder: Coder::DEFAULT, resolution: 10, parent: nil)
 						super(delegate)
 						
 						@id = SecureRandom.uuid
