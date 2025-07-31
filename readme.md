@@ -14,7 +14,16 @@ Please see the [project documentation](https://socketry.github.io/async-job-proc
 
 ## Releases
 
-There are no documented releases.
+Please see the [project releases](https://socketry.github.io/async-job-processor-redis/releases/index) for all releases.
+
+### v0.2.0
+
+  - Achieve 100% documentation coverage.
+  - Achieve 100% test coverage.
+
+### v0.1.0
+
+  - Initial release of async-job-processor-redis, migrated from the async-job project.
 
 ## See Also
 

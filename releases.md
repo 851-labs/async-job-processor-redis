@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.2.0
 
   - Achieve 100% documentation coverage.
   - Achieve 100% test coverage.
