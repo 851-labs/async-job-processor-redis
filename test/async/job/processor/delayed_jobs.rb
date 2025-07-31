@@ -118,26 +118,14 @@ describe Async::Job::Processor::Redis::DelayedJobs do
 			# Start the delayed job processor with high resolution for fast testing
 			task = delayed_jobs.start(ready_list, resolution: 0.1)
 			
-			# Wait for the job to become ready and be processed
-			Async::Task.current.with_timeout(2.0) do
-				loop do
-					ready_job_id = client.lpop(ready_list.key)
-					if ready_job_id == job_id
-						break
-					elsif ready_job_id
-						# Put it back if it's a different job
-						client.lpush(ready_list.key, ready_job_id)
-					end
-					Async::Task.current.sleep(0.05)
-				end
-			end
-			
-			# Stop the background task
-			task.stop
+			_, ready_job_id = client.blpop(ready_list.key, 1)
+			expect(ready_job_id).to be == job_id
 			
 			# Verify the job was moved (it should no longer be in delayed queue)
 			remaining_score = client.zscore(delayed_jobs.key, job_id)
 			expect(remaining_score).to be_nil
+		ensure
+			task&.stop
 		end
 		
 		it "logs debug messages when moving jobs" do
@@ -149,13 +137,16 @@ describe Async::Job::Processor::Redis::DelayedJobs do
 			task = delayed_jobs.start(ready_list, resolution: 0.1)
 			
 			# Wait for one processing cycle
-			Async::Task.current.sleep(0.2)
+			sleep(0.2)
 			
 			# Stop the task
 			task.stop
 			
 			# Check for debug log message
-			expect_console.to have_logged(severity: be(:==, :debug), message: be(:include?, "Moved 1 delayed jobs to ready list"))
+			expect_console.to have_logged(
+				severity: be == :debug,
+				message: be(:include?, "Moved 1 delayed jobs to ready list")
+			)
 		end
 	end
 end

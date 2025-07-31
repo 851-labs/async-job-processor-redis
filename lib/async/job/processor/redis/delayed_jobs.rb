@@ -75,7 +75,7 @@ module Async
 					# @parameter destination [String] The Redis key of the destination queue.
 					# @parameter now [Integer] The current timestamp to check against.
 					# @returns [Integer] The number of jobs moved.
-					def move(destination:, now: Time.now.to_i)
+					def move(destination:, now: Time.now.to_f)
 						@client.evalsha(@move, 2, @key, destination, now)
 					end
 				end
