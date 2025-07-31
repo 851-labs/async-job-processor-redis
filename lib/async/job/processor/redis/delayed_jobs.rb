@@ -7,6 +7,9 @@ module Async
 	module Job
 		module Processor
 			module Redis
+				# Manages delayed job scheduling using Redis sorted sets.
+				# Jobs are stored with their execution timestamps and automatically moved
+				# to the ready queue when their scheduled time arrives.
 				class DelayedJobs
 					ADD = <<~LUA
 						redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
@@ -22,6 +25,9 @@ module Async
 						return #jobs
 					LUA
 					
+					# Initialize a new delayed jobs manager.
+					# @parameter client [Async::Redis::Client] The Redis client instance.
+					# @parameter key [String] The Redis key for the delayed jobs sorted set.
 					def initialize(client, key)
 						@client = client
 						@key = key
@@ -30,6 +36,11 @@ module Async
 						@move = @client.script(:load, MOVE)
 					end
 					
+					# Start the background task that moves ready delayed jobs to the ready queue.
+					# @parameter ready_list [ReadyList] The ready list to move jobs to.
+					# @parameter resolution [Integer] The check interval in seconds.
+					# @parameter parent [Async::Task] The parent task to run the background loop in.
+					# @returns [Async::Task] The background processing task.
 					def start(ready_list, resolution: 10, parent: Async::Task.current)
 						parent.async do
 							while true
@@ -44,8 +55,14 @@ module Async
 						end
 					end
 					
+					# @attribute [String] The Redis key for this delayed jobs queue.
 					attr :key
 					
+					# Add a job to the delayed queue with a specified execution time.
+					# @parameter job [String] The serialized job data.
+					# @parameter timestamp [Time] When the job should be executed.
+					# @parameter job_store [JobStore] The job store to save the job data.
+					# @returns [String] The unique job ID.
 					def add(job, timestamp, job_store)
 						id = SecureRandom.uuid
 						
@@ -54,6 +71,10 @@ module Async
 						return id
 					end
 					
+					# Move jobs that are ready to be processed from the delayed queue to the destination.
+					# @parameter destination [String] The Redis key of the destination queue.
+					# @parameter now [Integer] The current timestamp to check against.
+					# @returns [Integer] The number of jobs moved.
 					def move(destination:, now: Time.now.to_i)
 						@client.evalsha(@move, 2, @key, destination, now)
 					end

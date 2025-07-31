@@ -18,7 +18,17 @@ module Async
 	module Job
 		module Processor
 			module Redis
+				# Redis-backed job processor server.
+				# Manages job queues using Redis for distributed job processing across multiple workers.
+				# Handles immediate jobs, delayed jobs, and job retry/recovery mechanisms.
 				class Server < Generic
+					# Initialize a new Redis job processor server.
+					# @parameter delegate [Object] The delegate object that will process jobs.
+					# @parameter client [Async::Redis::Client] The Redis client instance.
+					# @parameter prefix [String] The Redis key prefix for job data.
+					# @parameter coder [Async::Job::Coder] The job serialization codec.
+					# @parameter resolution [Integer] The resolution in seconds for delayed job processing.
+					# @parameter parent [Async::Task] The parent task for background processing.
 					def initialize(delegate, client, prefix: "async-job", coder: Coder::DEFAULT, resolution: 10, parent: nil)
 						super(delegate)
 						
@@ -36,6 +46,8 @@ module Async
 						@parent = parent || Async::Idler.new
 					end
 					
+					# Start the job processing loop immediately.
+					# @returns [Async::Task | false] The processing task or false if already started.
 					def start!
 						return false if @task
 						
@@ -52,6 +64,8 @@ module Async
 						end
 					end
 					
+					# Start the server and all background processing tasks.
+					# Initializes delayed job processing, abandoned job recovery, and the main processing loop.
 					def start
 						super
 						
@@ -64,12 +78,16 @@ module Async
 						self.start!
 					end
 					
+					# Stop the server and all background processing tasks.
 					def stop
 						@task&.stop
 						
 						super
 					end
 					
+					# Submit a new job for processing.
+					# Jobs with a scheduled_at time are queued for delayed processing, while immediate jobs are added to the ready queue.
+					# @parameter job [Hash] The job data to process.
 					def call(job)
 						scheduled_at = Coder::Time(job["scheduled_at"])
 						
