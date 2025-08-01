@@ -16,6 +16,10 @@ Please see the [project documentation](https://socketry.github.io/async-job-proc
 
 Please see the [project releases](https://socketry.github.io/async-job-processor-redis/releases/index) for all releases.
 
+### v0.3.0
+
+  - Add `Async::Job::Processor::Redis::Server#status_string` method to return a string with the current job counts.
+
 ### v0.2.0
 
   - Achieve 100% documentation coverage.
