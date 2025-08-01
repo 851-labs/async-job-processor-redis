@@ -74,4 +74,14 @@ describe Async::Job::Processor::Redis do
 			expect(failed).to be == true
 		end
 	end
+	
+	with "#status_string" do
+		it "returns a string with the current job counts" do
+			expect(server.status_string).to be == "R=0 D=0 P=0/0"
+			
+			server.call(job)
+			
+			expect(server.status_string).to be == "R=0 D=0 P=0/1"
+		end
+	end
 end

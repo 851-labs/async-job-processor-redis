@@ -28,6 +28,11 @@ module Async
 					# @attribute [String] The Redis key for this ready list.
 					attr :key
 					
+					# @returns [Integer] The number of jobs currently in the ready list.
+					def size
+						@client.llen(@key)
+					end
+					
 					# Add a new job to the ready queue.
 					# @parameter job [String] The serialized job data.
 					# @parameter job_store [JobStore] The job store to save the job data.

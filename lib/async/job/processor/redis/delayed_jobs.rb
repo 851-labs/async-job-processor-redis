@@ -36,6 +36,11 @@ module Async
 						@move = @client.script(:load, MOVE)
 					end
 					
+					# @returns [Integer] The number of jobs currently in the delayed queue.
+					def size
+						@client.zcard(@key)
+					end
+					
 					# Start the background task that moves ready delayed jobs to the ready queue.
 					# @parameter ready_list [ReadyList] The ready list to move jobs to.
 					# @parameter resolution [Integer] The check interval in seconds.

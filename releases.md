@@ -1,5 +1,9 @@
 # Releases
 
+## v0.3.0
+
+  - Add `Async::Job::Processor::Redis::Server#status_string` method to return a string with the current job counts.
+
 ## v0.2.0
 
   - Achieve 100% documentation coverage.

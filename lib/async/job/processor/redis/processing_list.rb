@@ -73,6 +73,8 @@ module Async
 						@requeue = @client.script(:load, REQUEUE)
 						@retry = @client.script(:load, RETRY)
 						@complete = @client.script(:load, COMPLETE)
+						
+						@complete_count = 0
 					end
 					
 					# @attribute [String] The base Redis key for this processing list.
@@ -80,6 +82,14 @@ module Async
 					
 					# @attribute [String] The Redis key for this worker's heartbeat.
 					attr :heartbeat_key
+					
+					# @attribute [Integer] The total count of all jobs completed by this worker.
+					attr :complete_count
+					
+					# @returns [Integer] The number of jobs currently being processed by this worker.
+					def size
+						@client.llen(@pending_key)
+					end
 					
 					# Fetch the next job from the ready queue, moving it to this worker's pending list.
 					# This is a blocking operation that waits until a job is available.
@@ -91,6 +101,8 @@ module Async
 					# Mark a job as completed, removing it from the pending list and job store.
 					# @parameter id [String] The job ID to complete.
 					def complete(id)
+						@complete_count += 1
+						
 						@client.evalsha(@complete, 2, @pending_key, @job_store.key, id)
 					end
 					

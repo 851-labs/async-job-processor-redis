@@ -85,6 +85,21 @@ module Async
 						super
 					end
 					
+					# Generates a human-readable string representing the current statistics.
+					#
+					# e.g. `R=3.42K D=1.23K P=7/2.34K``
+					#
+					# This can be interpreted as:
+					#
+					# - R: Number of jobs in the ready list
+					# - D: Number of jobs in the delayed queue
+					# - P: Number of jobs currently being processed / total number of completed jobs.
+					#
+					# @returns [String] A string representing the current statistics.
+					def status_string
+						"R=#{format_count(@ready_list.size)} D=#{format_count(@delayed_jobs.size)} P=#{format_count(@processing_list.size)}/#{format_count(@processing_list.complete_count)}"
+					end
+					
 					# Submit a new job for processing.
 					# Jobs with a scheduled_at time are queued for delayed processing, while immediate jobs are added to the ready queue.
 					# @parameter job [Hash] The job data to process.
@@ -120,6 +135,18 @@ module Async
 						end
 					ensure
 						@processing_list.retry(_id) if _id
+					end
+					
+					private
+					
+					def format_count(value)
+						if value > 1_000_000
+							"#{(value/1_000_000.0).round(2)}M"
+						elsif value > 1_000
+							"#{(value/1_000.0).round(2)}K"
+						else
+							value
+						end
 					end
 				end
 			end
