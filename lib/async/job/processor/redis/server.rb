@@ -29,14 +29,16 @@ module Async
 					# @parameter coder [Async::Job::Coder] The job serialization codec.
 					# @parameter resolution [Integer] The resolution in seconds for delayed job processing.
 					# @parameter parent [Async::Task] The parent task for background processing.
-					def initialize(delegate, client, prefix: "async-job", coder: Coder::DEFAULT, resolution: 10, parent: nil)
+					# @parameter max_reconnects [Integer] The maximum number of reconnects for a job.
+					def initialize(delegate, client, prefix: "async-job", coder: Coder::DEFAULT, resolution: 10, parent: nil, max_reconnects: 5)
 						super(delegate)
-						
+
 						@id = SecureRandom.uuid
 						@client = client
 						@prefix = prefix
 						@coder = coder
 						@resolution = resolution
+						@max_reconnects = max_reconnects
 						
 						@job_store = JobStore.new(@client, "#{@prefix}:jobs")
 						@delayed_jobs = DelayedJobs.new(@client, "#{@prefix}:delayed")
@@ -52,12 +54,22 @@ module Async
 						return false if @task
 						
 						@task = true
-						
+						backoff = 0.5
+						retries = 0
+
 						@parent.async(transient: true, annotation: self.class.name) do |task|
 							@task = task
-							
+
 							while true
-								self.dequeue(task)
+								begin
+									self.dequeue(task)
+								rescue EOFError => error
+									Console.error(self, "EOFError: #{error.message}", id: @id, exception: error)
+									sleep(backoff)
+									backoff = [backoff * 2, 5.0].min
+									retries += 1
+									retry unless retries > @max_reconnects
+								end
 							end
 						ensure
 							@task = nil
